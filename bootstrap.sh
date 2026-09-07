@@ -179,7 +179,8 @@ delete_linkerd_gitops_example() {
   k3d cluster delete cluster-a
   k3d cluster delete cluster-b
   docker network rm k3d-gitops-network
-  rm -rf ./pki/
+  rm -rf ./pki/intermediate
+  rm -rf ./pki/trust-anchor
 }
 
 "$@"
