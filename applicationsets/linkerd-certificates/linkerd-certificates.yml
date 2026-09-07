@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: linkerd-certificates
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            linkerd: "enabled"
+  template:
+    metadata:
+      name: 'linkerd-certificates-{{name}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/HeyCamCam/linkerd-gitops.git
+        targetRevision: main
+        path: pki/linkerd-issuers/
+        kustomize:
+          patches:
+            - target:
+                group: cert-manager.io
+                version: v1
+                kind: Certificate
+                name: linkerd-identity-issuer
+                namespace: linkerd
+              patch: |
+                - op: replace
+                  path: /spec/commonName
+                  value: identity.{{name}}.linkerd.cluster.local
+      destination:
+        server: '{{server}}'
+        namespace: cert-manager
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - ServerSideApply=true

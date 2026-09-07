@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            linkerd: "enabled"
+  template:
+    metadata:
+      name: 'cert-manager-{{name}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://charts.jetstack.io
+        chart: cert-manager
+        targetRevision: v1.21.1
+        helm:
+          parameters:
+            - name: installCRDs
+              value: "true"
+          values: |
+            prometheus:
+              enabled: false
+      destination:
+        server: '{{server}}'
+        namespace: cert-manager
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true

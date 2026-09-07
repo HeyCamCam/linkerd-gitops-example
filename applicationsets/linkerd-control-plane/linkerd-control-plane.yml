@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: linkerd-control-plane
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "8"
+spec:
+  generators:
+    - clusters:
+        selector:
+          matchLabels:
+            linkerd: "enabled"
+  template:
+    metadata:
+      name: 'linkerd-control-plane-{{name}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/linkerd/linkerd2.git
+        targetRevision: edge-26.9.1
+        path: charts/linkerd-control-plane
+        helm:
+          releaseName: linkerd-control-plane
+          values: |
+            linkerdVersion: edge-26.9.1
+            identity:
+              externalCA: true
+              issuer:
+                scheme: kubernetes.io/tls
+      destination:
+        server: '{{server}}'
+        namespace: linkerd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+          - ServerSideApply=true
