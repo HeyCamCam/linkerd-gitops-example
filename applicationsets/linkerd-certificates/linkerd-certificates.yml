@@ -17,7 +17,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/HeyCamCam/linkerd-gitops.git
+        repoURL: https://github.com/HeyCamCam/linkerd-gitops-example.git
         targetRevision: main
         path: pki/linkerd-issuers/
         kustomize:
