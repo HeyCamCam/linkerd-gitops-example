@@ -1,0 +1,62 @@
+---
+# Issuer that references the trust anchor sealed secret
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: linkerd-trust-anchor-issuer
+  annotations:
+    argocd.argoproj.io/sync-wave: "4"
+spec:
+  ca:
+    secretName: linkerd-trust-anchor
+---
+# The Identity Issuer Certificate acts as the intermediate Certificate Authority (CA) for the service mesh. This certificate will be signed by the linkerd-trust-anchor-issuer created above. The resulting secret (linkerd-identity-issuer) will contain the private key and certificate that Linkerd's identity controller uses to issue workload certificates.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: linkerd-identity-issuer
+  namespace: linkerd # The Certificate for the Linkerd identity issuer should go in the linkerd namespace, so that the control plane has access to the resulting Secret.
+  annotations:
+    argocd.argoproj.io/sync-wave: "5"
+spec:
+  isCA: true
+  commonName: identity.linkerd.cluster.local
+  secretName: linkerd-identity-issuer
+  duration: 10000h 
+  renewBefore: 1000h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+    rotationPolicy: Always
+  usages:
+    - cert sign
+    - crl sign
+    - server auth
+    - client auth
+  issuerRef:
+    name: linkerd-trust-anchor-issuer
+    kind: ClusterIssuer
+---
+# This Bundle tells trust-manager to copy the public certificate from the linkerd-trust-anchor secret (in the cert-manager namespace) into a ConfigMap named linkerd-identity-trust-roots in the linkerd namespace.
+apiVersion: trust.cert-manager.io/v1alpha1
+kind: Bundle
+metadata:
+  name: linkerd-identity-trust-roots
+  namespace: cert-manager
+  annotations:
+    argocd.argoproj.io/sync-wave: "6"
+spec:
+  sources:
+    - secret:
+        name: linkerd-trust-anchor # the sealed-secret
+        key: tls.crt
+  target:
+    namespaceSelector:
+      matchLabels:
+        kubernetes.io/metadata.name: "linkerd"
+    configMap:
+      metadata:
+        annotations:
+          argocd.argoproj.io/sync-wave: "6"
+      key: ca-bundle.crt
+
