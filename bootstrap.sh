@@ -73,8 +73,8 @@ check_for_kubeseal() {
   else
     echo "Kubeseal not found. Downloading."
     curl -sL -o $tools_dir/kubeseal.tar.gz https://github.com/bitnami/sealed-secrets/releases/download/v0.40.0/kubeseal-0.40.0-linux-amd64.tar.gz
-    tar -xvf $tools_dir/kubeseal.tar.gz -C tools/
-    rm $tools_dir/{kubeseal.tar.gz,LICENSE,README.md}
+    tar -xf ~/.local/bin/kubeseal.tar.gz -C $tools_dir kubeseal
+    rm $tools_dir/kubeseal.tar.gz
     echo -e "Download of Kubeseal is complete.\n"
   fi
 }
@@ -85,7 +85,7 @@ check_for_step() {
   else
     echo "Step cli not found. Downloading."
     curl -sL -o $tools_dir/step_linux_amd64.tar.gz https://dl.smallstep.com/cli/docs-cli-install/latest/step_linux_amd64.tar.gz
-    tar -xvf $tools_dir/step_linux_amd64.tar.gz -C $tools_dir/ step_linux_amd64/bin/step
+    tar -xf $tools_dir/step_linux_amd64.tar.gz -C $tools_dir/ step_linux_amd64/bin/step
     mv $tools_dir/step_linux_amd64/bin/step $tools_dir/step
     rm -rf $tools_dir/step_linux_amd64.tar.gz $tools_dir/step_linux_amd64
     echo -e "Download of Step is complete.\n"
