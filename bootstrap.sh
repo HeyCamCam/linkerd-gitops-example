@@ -96,7 +96,7 @@ create_docker_network() {
   if docker network inspect k3d-gitops-network > /dev/null 2>&1; then
     echo "The k3d-gitops-network already exists. Skipping creation."
   else
-    echo "\nCreating k3d-gitops-network docker network"
+    echo "Creating k3d-gitops-network docker network"
     docker network create k3d-gitops-network
   fi
 }
@@ -264,7 +264,7 @@ deploy_linkerd_gitops_example() {
   add_remote_clusters_to_argocd
   deploy_prerequisite_appsets
   configure_sealed_secrets
-  deploy_linkerd
+  #deploy_linkerd
 }
 
 delete_linkerd_gitops_example() {
