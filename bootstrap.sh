@@ -92,10 +92,16 @@ check_for_step() {
   fi
 }
 
-deploy_clusters() {
-  echo -e "\nCreating k3d-gitops-network docker network"
-  docker network create k3d-gitops-network
+create_docker_network() {
+  if docker network inspect k3d-gitops-network > /dev/null 2>&1; then
+    echo "The k3d-gitops-network already exists. Skipping creation."
+  else
+    echo "\nCreating k3d-gitops-network docker network"
+    docker network create k3d-gitops-network
+  fi
+}
 
+deploy_clusters() {
   echo -e "\nCreating k3d-management cluster"
   $tools_dir/k3d cluster create management --network k3d-gitops-network --api-port ${server_ip}:6445 --k3s-arg "--tls-san=${server_ip}@server:0" --port "${server_ip}:81:80@loadbalancer"
 
@@ -247,6 +253,7 @@ deploy_linkerd() {
 
 deploy_linkerd_gitops_example() {
   tools_check
+  create_docker_network
   deploy_clusters
   install_argocd
   start_port_forward
