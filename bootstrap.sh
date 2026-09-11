@@ -149,9 +149,9 @@ generate_linkerd_certificates() {
   mkdir -p pki/trust-anchor
   $tools_dir/step certificate create root.linkerd.cluster.local pki/trust-anchor/trust-anchor-ca.crt pki/trust-anchor/trust-anchor-ca.key --profile root-ca --no-password --insecure --not-after 43800h
 
-  echo "Generating the Linkerd intermediate certificate and key pair that will be used to sign the Linkerd proxies CSR"
-  mkdir -p pki/intermediate
-  $tools_dir/step certificate create identity.linkerd.cluster.local pki/intermediate/issuer.crt pki/intermediate/issuer.key --profile intermediate-ca --not-after 8760h --no-password --insecure --ca pki/trust-anchor/trust-anchor-ca.crt --ca-key pki/trust-anchor/trust-anchor-ca.key
+  echo "Generating the Linkerd identity issuer certificate and key pair that will be used to sign the Linkerd proxies CSR"
+  mkdir -p pki/identity-issuer
+  $tools_dir/step certificate create identity.linkerd.cluster.local pki/identity-issuer/issuer.crt pki/identity-issuer/issuer.key --profile intermediate-ca --not-after 8760h --no-password --insecure --ca pki/trust-anchor/trust-anchor-ca.crt --ca-key pki/trust-anchor/trust-anchor-ca.key
 }
 
 create_sa_token() {
@@ -272,7 +272,7 @@ delete_linkerd_gitops_example() {
   $tools_dir/k3d cluster delete cluster-a
   $tools_dir/k3d cluster delete cluster-b
   docker network rm k3d-gitops-network
-  rm -rf ./pki/intermediate
+  rm -rf ./pki/identity-issuer
   rm -rf ./pki/trust-anchor
 }
 
