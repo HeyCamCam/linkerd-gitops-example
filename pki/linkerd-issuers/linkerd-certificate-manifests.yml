@@ -5,7 +5,7 @@ kind: ClusterIssuer
 metadata:
   name: linkerd-trust-anchor-issuer
   annotations:
-    argocd.argoproj.io/sync-wave: "4"
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   ca:
     secretName: linkerd-trust-anchor
@@ -17,7 +17,7 @@ metadata:
   name: linkerd-identity-issuer
   namespace: linkerd # The Certificate for the Linkerd identity issuer should go in the linkerd namespace, so that the control plane has access to the resulting Secret.
   annotations:
-    argocd.argoproj.io/sync-wave: "5"
+    argocd.argoproj.io/sync-wave: "3"
 spec:
   isCA: true
   commonName: identity.linkerd.cluster.local
@@ -44,7 +44,7 @@ metadata:
   name: linkerd-identity-trust-roots
   namespace: cert-manager
   annotations:
-    argocd.argoproj.io/sync-wave: "6"
+    argocd.argoproj.io/sync-wave: "4"
 spec:
   sources:
     - secret:
@@ -57,6 +57,6 @@ spec:
     configMap:
       metadata:
         annotations:
-          argocd.argoproj.io/sync-wave: "6"
+          argocd.argoproj.io/sync-wave: "4"
       key: ca-bundle.crt
 
